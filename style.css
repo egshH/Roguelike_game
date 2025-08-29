@@ -1,0 +1,127 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #222;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.game-logo {
+    height: 200px; 
+    width: auto;  
+    display: block;
+    margin: 0 auto 10px;
+}
+
+.player-stats {
+    display: flex;
+    gap: 20px;
+}
+
+.health-bar, .attack-bar {
+    display: flex;
+    align-items: center;
+    gap: 100px;
+    margin: 0 auto 10px;
+}
+
+.health-container {
+    width: 200px;
+    height: 20px;
+    background-color: #333;
+    border: 1px solid #555;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.health {
+    height: 100%;
+    background-color: #f00;
+    width: 100%;
+    transition: width 0.3s;
+}
+
+.attack-value {
+    width: 30px;
+    text-align: center;
+    background-color: #333;
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+.game-container {
+    display: flex;
+    justify-content: center;
+    
+}
+
+.field {
+    display: grid;
+    grid-template-columns: repeat(40, 35px);
+    grid-template-rows: repeat(24, 35px);
+    gap: 1px;
+}
+
+.tile {
+    width: 35px;
+    height: 35px;
+}
+
+.wall {
+    background-color: #777;
+    background-image: url('images/back1.jpg');
+    background-size: cover;
+    z-index: 10;
+}
+
+.floor {
+    background-color: #777;
+    z-index: 10;
+}
+
+.player {
+    background-color: #777;
+    background-image: url('images/player.png');
+    background-size: cover;
+    z-index: 10;
+}
+
+.enemy {
+    background-color: #777;
+    background-image: url('images/monster.png');
+    background-size: cover;
+    z-index: 10;
+}
+
+.sword {
+    background-color: #777;
+    background-image: url('images/sword.png');
+    background-size: cover;
+    z-index: 10;
+}
+
+.potion {
+    background-color: #777;
+    background-image: url('images/potion.png');
+    background-size: cover;
+    z-index: 10;
+}
+
+.instructions {
+    margin-top: 20px;
+    text-align: center;
+}
