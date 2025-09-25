@@ -15,12 +15,12 @@ $(document).ready(function() {
         health: 100,
         maxHealth: 100,
         attack: 5,
-        visibilityRadius: 6 // Радиус видимости игрока для врагов
+        visibilityRadius: 6
     };
     let enemies = [];
     let swords = [];
     let potions = [];
-    let criticalPoints = []; // Маршрутные точки, которые не должны блокироваться
+    let criticalPoints = [];
     
     let keyState = {
         'w': false,
@@ -38,7 +38,7 @@ $(document).ready(function() {
             }
             gameMap.push(row);
         }
-        criticalPoints = []; // Сброс маршрутных точек
+        criticalPoints = [];
     }
     
     function generateRooms() {
@@ -86,7 +86,6 @@ $(document).ready(function() {
     function generateCorridors(rooms) {
         if (rooms.length === 0) return;
         
-        // Создаем список всех возможных соединений между комнатами
         const connections = [];
         for (let i = 0; i < rooms.length; i++) {
             for (let j = i + 1; j < rooms.length; j++) {
@@ -105,13 +104,11 @@ $(document).ready(function() {
             }
         }
         
-        // Сортируем соединения по расстоянию
         connections.sort((a, b) => a.distance - b.distance);
         
         const connected = Array(rooms.length).fill(false);
         connected[0] = true;
         
-        // Создаем минимальное остовное дерево
         while (connected.some(c => !c)) {
             for (const connection of connections) {
                 if (connected[connection.from] !== connected[connection.to]) {
@@ -126,21 +123,18 @@ $(document).ready(function() {
                     const room2CenterX = room2.x + Math.floor(room2.width / 2);
                     const room2CenterY = room2.y + Math.floor(room2.height / 2);
                     
-                    // Горизонтальный проход
                     let x = room1CenterX;
                     while (x !== room2CenterX) {
                         gameMap[room1CenterY][x] = FLOOR;
                         x += (room2CenterX > room1CenterX) ? 1 : -1;
                     }
                     
-                    // Вертикальный проход
                     let y = room1CenterY;
                     while (y !== room2CenterY) {
                         gameMap[y][room2CenterX] = FLOOR;
                         y += (room2CenterY > room1CenterY) ? 1 : -1;
                     }
                     
-                    // Добавляем ключевые маршрутные точки
                     addCriticalPoints(room1CenterX, room1CenterY, room2CenterX, room2CenterY);
                     
                     connected[toRoom] = true;
@@ -149,7 +143,6 @@ $(document).ready(function() {
             }
         }
         
-        // Добавляем дополнительные проходы для большей связности
         const additionalCorridors = Math.floor(Math.random() * 3) + 3;
         for (let i = 0; i < additionalCorridors; i++) {
             const room1Index = Math.floor(Math.random() * rooms.length);
@@ -164,45 +157,37 @@ $(document).ready(function() {
                 const room2CenterX = room2.x + Math.floor(room2.width / 2);
                 const room2CenterY = room2.y + Math.floor(room2.height / 2);
                 
-                // Горизонтальный проход
                 let x = room1CenterX;
                 while (x !== room2CenterX) {
                     gameMap[room1CenterY][x] = FLOOR;
                     x += (room2CenterX > room1CenterX) ? 1 : -1;
                 }
                 
-                // Вертикальный проход
                 let y = room1CenterY;
                 while (y !== room2CenterY) {
                     gameMap[y][room2CenterX] = FLOOR;
                     y += (room2CenterY > room1CenterY) ? 1 : -1;
                 }
                 
-                // Добавляем ключевые маршрутные точки для дополнительных проходов
                 addCriticalPoints(room1CenterX, room1CenterY, room2CenterX, room2CenterY);
             }
         }
     }
     
-    // Добавляет ключевые маршрутные точки в проходы
     function addCriticalPoints(x1, y1, x2, y2) {
-        // Добавляем точки в углах проходов
         criticalPoints.push({x: x1, y: y1});
         criticalPoints.push({x: x2, y: y2});
         
-        // Добавляем точки в пересечениях проходов (углы)
         if (x1 !== x2 && y1 !== y2) {
             criticalPoints.push({x: x1, y: y2});
             criticalPoints.push({x: x2, y: y1});
         }
     }
     
-    // Проверяет, является ли позиция критической маршрутной точкой
     function isCriticalPoint(x, y) {
         return criticalPoints.some(point => point.x === x && point.y === y);
     }
     
-    // Проверяет, находится ли позиция рядом с критической точкой
     function isNearCriticalPoint(x, y) {
         return criticalPoints.some(point => 
             Math.abs(point.x - x) <= 1 && Math.abs(point.y - y) <= 1
@@ -220,7 +205,6 @@ $(document).ready(function() {
             attempts++;
             
             if (attempts > maxAttempts) {
-                // Если не можем найти позицию, уменьшаем требования
                 avoidCritical = false;
             }
         } while (
@@ -246,21 +230,18 @@ $(document).ready(function() {
     }
     
     function placeItems() {
-        // Мечи (2 шт) - можно размещать где угодно
         for (let i = 0; i < 2; i++) {
             const pos = findFreePosition();
             gameMap[pos.y][pos.x] = SWORD;
             swords.push({x: pos.x, y: pos.y});
         }
         
-        // Зелья (10 шт) - можно размещать где угодно
         for (let i = 0; i < 10; i++) {
             const pos = findFreePosition();
             gameMap[pos.y][pos.x] = POTION;
             potions.push({x: pos.x, y: pos.y});
         }
         
-        // Противники (10 шт) - избегаем критических точек
         for (let i = 0; i < 10; i++) {
             const pos = findFreePosition(true);
             gameMap[pos.y][pos.x] = ENEMY;
@@ -268,11 +249,10 @@ $(document).ready(function() {
                 x: pos.x,
                 y: pos.y,
                 health: 30,
-                awarenessRadius: 5 // Радиус обнаружения игрока
+                awarenessRadius: 5
             });
         }
         
-        // Игрок - избегаем критических точек
         const playerPos = findFreePosition(true);
         gameMap[playerPos.y][playerPos.x] = PLAYER;
         player.x = playerPos.x;
@@ -442,7 +422,6 @@ $(document).ready(function() {
             const oldX = enemy.x;
             const oldY = enemy.y;
             
-            // Проверяем, находится ли игрок в зоне видимости врага
             const distanceToPlayer = Math.abs(enemy.x - player.x) + Math.abs(enemy.y - player.y);
             const inSight = distanceToPlayer <= enemy.awarenessRadius;
             
@@ -450,11 +429,8 @@ $(document).ready(function() {
                 continue;
             }
             
-            // Если игрок не в зоне видимости, враг не двигается к игроку
             if (!inSight) {
-                // Но проверяем, не находится ли враг рядом с критической точкой
                 if (isNearCriticalPoint(enemy.x, enemy.y)) {
-                    // Если да, то враг может случайно двигаться, чтобы не блокировать проход
                     tryRandomMovement(enemy, oldX, oldY);
                 }
                 continue;
@@ -518,26 +494,20 @@ $(document).ready(function() {
                 }
             }
             
-            // Если не можем двигаться к игроку, делаем случайное движение
             tryRandomMovement(enemy, oldX, oldY);
             
             enemies[enemyIndex] = enemy;
         }
     }
     
-    // Проверяет, будет ли перемещение блокировать критический путь
     function wouldBlockCriticalPath(x, y) {
-        // Если перемещение происходит на критическую точку или блокирует проход к ней
         return isCriticalPoint(x, y) || 
                (isNearCriticalPoint(x, y) && wouldIsolateCriticalPoint(x, y));
     }
     
-    // Проверяет, изолирует ли перемещение критическую точку
     function wouldIsolateCriticalPoint(x, y) {
-        // Проверяем, не блокируется ли последний путь к критической точке
         for (const point of criticalPoints) {
             if (Math.abs(point.x - x) <= 1 && Math.abs(point.y - y) <= 1) {
-                // Проверяем, есть ли другие пути к этой точке
                 const adjacentPoints = [
                     {x: point.x + 1, y: point.y},
                     {x: point.x - 1, y: point.y},
@@ -554,14 +524,12 @@ $(document).ready(function() {
                     }
                 }
                 
-                // Если после перемещения останется менее 2 свободных путей, это блокирует точку
                 return freePaths < 2;
             }
         }
         return false;
     }
     
-    // Пробует случайное движение, избегая блокировки критических точек
     function tryRandomMovement(enemy, oldX, oldY) {
         const directions = [
             {dx: 1, dy: 0},
@@ -570,7 +538,6 @@ $(document).ready(function() {
             {dx: 0, dy: -1}
         ];
         
-        // Перемешиваем направления
         for (let i = directions.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [directions[i], directions[j]] = [directions[j], directions[i]];
@@ -646,7 +613,6 @@ $(document).ready(function() {
             e.preventDefault();
         }
         
-        // Обрабатываем движение только если нажата одна клавиша
         if (keyState['w'] && !keyState['a'] && !keyState['s'] && !keyState['d']) {
             movePlayer(0, -1);
         } else if (keyState['a'] && !keyState['w'] && !keyState['s'] && !keyState['d']) {
